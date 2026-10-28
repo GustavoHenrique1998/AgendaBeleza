@@ -2,25 +2,25 @@
 import { useEffect } from "react";
 
 export const inputCls =
-  "w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 outline-none focus:border-rose-500 focus:ring-1 focus:ring-rose-500";
+  "w-full rounded-xl border border-zinc-200 bg-white px-3 py-2.5 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10";
 export const btnPrimary =
-  "rounded-lg bg-rose-600 px-4 py-2.5 font-medium text-white transition hover:bg-rose-700 disabled:cursor-not-allowed disabled:bg-neutral-300";
+  "rounded-xl bg-zinc-900 px-4 py-2.5 font-medium text-white shadow-sm transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300";
 export const btnGhost =
-  "rounded-lg border border-neutral-300 bg-white px-4 py-2.5 font-medium text-neutral-700 transition hover:bg-neutral-50 disabled:opacity-50";
+  "rounded-xl border border-zinc-200 bg-white px-4 py-2.5 font-medium text-zinc-700 transition hover:bg-zinc-50 disabled:opacity-50";
 
 export type Status = "PENDING" | "CONFIRMED" | "COMPLETED" | "CANCELLED" | "NO_SHOW";
 
 export const STATUS_INFO: Record<Status, { label: string; cor: string }> = {
-  PENDING: { label: "Pendente", cor: "bg-amber-100 border-amber-400 text-amber-900" },
-  CONFIRMED: { label: "Confirmado", cor: "bg-sky-100 border-sky-400 text-sky-900" },
-  COMPLETED: { label: "Concluído", cor: "bg-emerald-100 border-emerald-400 text-emerald-900" },
-  CANCELLED: { label: "Cancelado", cor: "bg-neutral-100 border-neutral-300 text-neutral-500" },
-  NO_SHOW: { label: "Falta", cor: "bg-red-100 border-red-400 text-red-900" },
+  PENDING: { label: "Pendente", cor: "border border-amber-200 bg-amber-50 text-amber-700" },
+  CONFIRMED: { label: "Confirmado", cor: "border border-emerald-200 bg-emerald-50 text-emerald-700" },
+  COMPLETED: { label: "Concluído", cor: "border border-emerald-200 bg-emerald-50 text-emerald-700" },
+  CANCELLED: { label: "Cancelado", cor: "border border-zinc-200 bg-zinc-100 text-zinc-600" },
+  NO_SHOW: { label: "Falta", cor: "border border-red-200 bg-red-50 text-red-700" },
 };
 
 export function StatusBadge({ status }: { status: Status }) {
   const info = STATUS_INFO[status];
-  return <span className={`inline-block rounded-full border px-2 py-0.5 text-xs font-medium ${info.cor}`}>{info.label}</span>;
+  return <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${info.cor}`}>{info.label}</span>;
 }
 
 export function Campo({ rotulo, children }: { rotulo: string; children: React.ReactNode }) {

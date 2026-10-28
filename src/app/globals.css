@@ -7,7 +7,7 @@ html {
 }
 
 body {
-  @apply bg-neutral-50 text-neutral-900 antialiased;
+  @apply bg-zinc-50/50 text-zinc-900 antialiased;
 }
 
 /* campos de formulário confortáveis no celular (16px evita zoom automático no iOS) */
