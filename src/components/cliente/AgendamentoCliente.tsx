@@ -55,7 +55,7 @@ export default function AgendamentoCliente() {
   const total = escolhidos.reduce((s, x) => s + x.priceCents, 0);
   const minutos = escolhidos.reduce((s, x) => s + x.durationMin, 0);
   const selectedProfessional = profissionais.find((p) => p.id === selectedProfessionalId) ?? null;
-  const selectedProfessionalParam = !selectedProfessionalId || selectedProfessionalId === "ANY" ? "ANY" : selectedProfessionalId;
+  const selectedProfessionalParam = selectedProfessionalId && selectedProfessionalId !== "ANY" ? selectedProfessionalId : "ANY";
 
   useEffect(() => {
     fetch("/api/services").then((r) => r.json()).then(setCategorias);
@@ -74,11 +74,12 @@ export default function AgendamentoCliente() {
 
   // horários reais calculados pelo servidor
   useEffect(() => {
-    if (passo !== 2 || !data) return;
+    if (passo !== 2 || !data || !selecionados.length) return;
+    const professionalParam = selectedProfessionalParam || "ANY";
     setCarregandoHorarios(true);
     setHora(null);
     fetch(
-      `/api/availability?serviceIds=${selecionados.join(",")}&professionalId=${selectedProfessionalParam}&date=${data}`
+      `/api/availability?serviceIds=${encodeURIComponent(selecionados.join(","))}&professionalId=${encodeURIComponent(professionalParam)}&date=${encodeURIComponent(data)}`
     )
       .then(async (res) => {
         const body = await res.json().catch(() => ({}));
@@ -87,7 +88,7 @@ export default function AgendamentoCliente() {
         }
         return Array.isArray(body?.horarios) ? body.horarios : [];
       })
-      .then((lista) => setHorarios(lista || []))
+      .then((lista) => setHorarios(Array.isArray(lista) ? lista : []))
       .catch((error) => {
         setHorarios([]);
         setErro(error instanceof Error ? error.message : "Não foi possível carregar os horários.");
@@ -107,7 +108,7 @@ export default function AgendamentoCliente() {
   async function confirmar() {
     setEnviando(true);
     setErro(null);
-    const profissionalParaEnviar = !selectedProfessionalId || selectedProfessionalId === "ANY" ? "ANY" : selectedProfessionalId;
+    const profissionalParaEnviar = selectedProfessionalId && selectedProfessionalId !== "ANY" ? selectedProfessionalId : "ANY";
     const res = await fetch("/api/appointments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },

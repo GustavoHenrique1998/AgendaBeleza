@@ -107,6 +107,7 @@ export async function GET(req: Request) {
             endMin: clamp(paraMin(x.endsAt)),
             status: x.status,
             clientName: x.client.name,
+            clientPhone: x.client.phone ?? null,
             servicos: x.services.map((s: any) => s.name),
             totalCents: x.totalCents,
           })),
