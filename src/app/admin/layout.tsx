@@ -20,14 +20,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <header className="sticky top-0 z-30 border-b bg-white">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-3 py-2 sm:px-6">
           <span className="font-semibold text-rose-600">Painel</span>
-          <nav className="-mx-1 flex flex-1 gap-1 overflow-x-auto px-1">
+          <nav className="-mx-1 flex flex-1 gap-1 overflow-x-auto whitespace-nowrap px-1 py-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {LINKS.map((l) => {
               const ativo = l.href === "/admin" ? pathname === "/admin" : pathname.startsWith(l.href);
               return (
                 <a
                   key={l.href}
                   href={l.href}
-                  className={`whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium ${
+                  className={`shrink-0 whitespace-nowrap rounded-lg px-3 py-2 text-sm font-medium ${
                     ativo ? "bg-rose-50 text-rose-700" : "text-neutral-600 hover:bg-neutral-100"
                   }`}
                 >

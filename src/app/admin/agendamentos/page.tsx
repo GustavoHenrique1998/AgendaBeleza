@@ -74,26 +74,34 @@ export default function AgendamentosPage() {
   }
 
   return (
-    <main className="mx-auto max-w-6xl p-3 sm:p-6">
+    <main className="mx-auto max-w-6xl p-3 pb-36 sm:p-6">
       <div className="mb-4 flex items-center justify-between">
         <h1 className="text-2xl font-semibold">Agendamentos</h1>
         <button onClick={() => setNovo(true)} className={btnPrimary}>+ Novo agendamento</button>
       </div>
 
-      <div className="mb-4 grid grid-cols-2 gap-2 sm:grid-cols-4">
-        <Campo rotulo="De"><input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className={inputCls} /></Campo>
-        <Campo rotulo="Até"><input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={inputCls} /></Campo>
-        <Campo rotulo="Status">
-          <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputCls}>
-            <option value="">Todos</option>
-            {(Object.keys(STATUS_INFO) as Status[]).map((s) => (
-              <option key={s} value={s}>{STATUS_INFO[s].label}</option>
-            ))}
-          </select>
-        </Campo>
-        <Campo rotulo="Cliente">
-          <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar nome" className={inputCls} />
-        </Campo>
+      <div className="mb-4 grid w-full grid-cols-2 gap-3">
+        <div className="w-full">
+          <Campo rotulo="De"><input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className={inputCls} /></Campo>
+        </div>
+        <div className="w-full">
+          <Campo rotulo="Até"><input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={inputCls} /></Campo>
+        </div>
+        <div className="col-span-2 w-full sm:col-span-1">
+          <Campo rotulo="Status">
+            <select value={status} onChange={(e) => setStatus(e.target.value)} className={inputCls}>
+              <option value="">Todos</option>
+              {(Object.keys(STATUS_INFO) as Status[]).map((s) => (
+                <option key={s} value={s}>{STATUS_INFO[s].label}</option>
+              ))}
+            </select>
+          </Campo>
+        </div>
+        <div className="col-span-2 w-full sm:col-span-1">
+          <Campo rotulo="Cliente">
+            <input value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar nome" className={inputCls} />
+          </Campo>
+        </div>
       </div>
 
       {erro && <Alerta>{erro}</Alerta>}
@@ -102,7 +110,7 @@ export default function AgendamentosPage() {
         <p className="rounded-xl bg-white p-6 text-center text-neutral-500">Nenhum agendamento neste período.</p>
       )}
 
-      <ul className="space-y-2">
+      <ul className="space-y-2 pb-36">
         {lista?.map((a) => (
           <li key={a.id} className="rounded-xl border bg-white p-3">
             <div className="flex flex-wrap items-start justify-between gap-2">

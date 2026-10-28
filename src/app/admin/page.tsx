@@ -159,7 +159,7 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="mx-auto max-w-6xl p-3 sm:p-6">
+    <main className="mx-auto max-w-6xl p-3 pb-36 sm:p-6">
       <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <p className="text-sm font-medium text-rose-600">Painel administrativo</p>
@@ -187,47 +187,52 @@ export default function DashboardPage() {
       {dados && (
         <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
           <div className="mb-4 flex flex-col gap-3">
-            <div className="flex items-center justify-between gap-2">
-              <button
-                type="button"
-                onClick={() => navegarData(-1)}
-                className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-lg font-semibold text-neutral-700"
-                aria-label="Dia anterior"
-              >
-                ‹
-              </button>
-              <button
-                type="button"
-                onClick={() => setSelectedDate(hojeLocal())}
-                className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700"
-              >
-                Hoje
-              </button>
-              <button
-                type="button"
-                onClick={() => navegarData(1)}
-                className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm font-semibold text-neutral-700"
-              >
-                Amanhã
-              </button>
-              <button
-                type="button"
-                onClick={() => navegarData(1)}
-                className="rounded-lg border border-neutral-200 bg-white px-3 py-2 text-lg font-semibold text-neutral-700"
-                aria-label="Próximo dia"
-              >
-                ›
-              </button>
+            <div className="flex w-full items-center justify-between gap-2 sm:flex-row">
+              <div className="flex w-full items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => navegarData(-1)}
+                  className="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-lg font-semibold text-neutral-700"
+                  aria-label="Dia anterior"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setSelectedDate(hojeLocal())}
+                  className="flex-1 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700"
+                >
+                  Hoje
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navegarData(1)}
+                  className="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm font-semibold text-neutral-700"
+                >
+                  Amanhã
+                </button>
+                <button
+                  type="button"
+                  onClick={() => navegarData(1)}
+                  className="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-lg font-semibold text-neutral-700"
+                  aria-label="Próximo dia"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+
+            <div className="w-full">
               <input
                 type="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="rounded-lg border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-700 outline-none focus:border-rose-500"
+                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-700 outline-none focus:border-rose-500"
                 aria-label="Selecionar data"
               />
             </div>
 
-            <div className="flex gap-2 overflow-x-auto pb-1">
+            <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
               <button
                 type="button"
                 onClick={() => setFiltroProfissional("todos")}

@@ -78,7 +78,7 @@ export default function HorariosPage() {
   const hora = (min: number | null) => (min === null ? "" : minutosParaHHMM(min));
 
   return (
-    <main className="mx-auto max-w-4xl p-3 sm:p-6">
+    <main className="mx-auto max-w-4xl p-3 pb-36 sm:p-6">
       <h1 className="mb-1 text-2xl font-semibold">Horários de Atendimento</h1>
       <p className="mb-4 text-sm text-neutral-600">
         O horário de cada profissional vale dentro do expediente do salão. Dias desmarcados são folga.
@@ -93,46 +93,65 @@ export default function HorariosPage() {
         </select>
       </div>
 
-      <ul className="space-y-2">
+      <ul className="space-y-3">
         {ORDEM.map((wd) => {
           const d = dias.find((x) => x.weekday === wd);
           if (!d) return null;
           return (
-            <li key={wd} className={`rounded-xl border bg-white p-3 ${d.isOpen ? "" : "opacity-70"}`}>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
-                <label className="flex w-32 items-center gap-2 font-medium">
-                  <input type="checkbox" checked={d.isOpen} onChange={(e) => mudar(wd, { isOpen: e.target.checked })} className="h-5 w-5" />
+            <li key={wd} className={`rounded-2xl border bg-white p-3 shadow-sm ${d.isOpen ? "" : "opacity-70"}`}>
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <label className="flex items-center gap-2 text-base font-semibold text-neutral-800">
+                  <input type="checkbox" checked={d.isOpen} onChange={(e) => mudar(wd, { isOpen: e.target.checked })} className="h-4 w-4" />
                   {NOMES[wd]}
                 </label>
-                {d.isOpen ? (
-                  <>
-                    <span className="flex items-center gap-1 text-sm">
-                      Das
-                      <input type="time" value={hora(d.startMin)} onChange={(e) => e.target.value && mudar(wd, { startMin: hhmmParaMinutos(e.target.value) })} className={`${inputCls} !w-auto`} />
-                      às
-                      <input type="time" value={hora(d.endMin)} onChange={(e) => e.target.value && mudar(wd, { endMin: hhmmParaMinutos(e.target.value) })} className={`${inputCls} !w-auto`} />
-                    </span>
-                    <span className="flex items-center gap-1 text-sm">
-                      Almoço
+                {!d.isOpen && <span className="text-sm text-neutral-500">Folga</span>}
+              </div>
+
+              {d.isOpen ? (
+                <div className="space-y-3">
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="mb-1 block text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-500">Entrada</label>
+                      <input
+                        type="time"
+                        value={hora(d.startMin)}
+                        onChange={(e) => e.target.value && mudar(wd, { startMin: hhmmParaMinutos(e.target.value) })}
+                        className={inputCls}
+                      />
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-500">Saída</label>
+                      <input
+                        type="time"
+                        value={hora(d.endMin)}
+                        onChange={(e) => e.target.value && mudar(wd, { endMin: hhmmParaMinutos(e.target.value) })}
+                        className={inputCls}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <div>
+                      <label className="mb-1 block text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-500">Início almoço</label>
                       <input
                         type="time"
                         value={hora(d.breakStartMin)}
                         onChange={(e) => mudar(wd, { breakStartMin: e.target.value ? hhmmParaMinutos(e.target.value) : null, ...(e.target.value ? {} : { breakEndMin: null }) })}
-                        className={`${inputCls} !w-auto`}
+                        className={inputCls}
                       />
-                      às
+                    </div>
+                    <div>
+                      <label className="mb-1 block text-[11px] font-medium uppercase tracking-[0.08em] text-neutral-500">Fim almoço</label>
                       <input
                         type="time"
                         value={hora(d.breakEndMin)}
                         onChange={(e) => mudar(wd, { breakEndMin: e.target.value ? hhmmParaMinutos(e.target.value) : null })}
-                        className={`${inputCls} !w-auto`}
+                        className={inputCls}
                       />
-                    </span>
-                  </>
-                ) : (
-                  <span className="text-sm text-neutral-500">Folga</span>
-                )}
-              </div>
+                    </div>
+                  </div>
+                </div>
+              ) : null}
             </li>
           );
         })}
