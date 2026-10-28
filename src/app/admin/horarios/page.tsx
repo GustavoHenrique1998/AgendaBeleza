@@ -116,7 +116,7 @@ export default function HorariosPage() {
                         type="time"
                         value={hora(d.startMin)}
                         onChange={(e) => e.target.value && mudar(wd, { startMin: hhmmParaMinutos(e.target.value) })}
-                        className={inputCls}
+                        className="h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-800 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
                       />
                     </div>
                     <div>
@@ -125,7 +125,7 @@ export default function HorariosPage() {
                         type="time"
                         value={hora(d.endMin)}
                         onChange={(e) => e.target.value && mudar(wd, { endMin: hhmmParaMinutos(e.target.value) })}
-                        className={inputCls}
+                        className="h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-800 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
                       />
                     </div>
                   </div>
@@ -137,7 +137,7 @@ export default function HorariosPage() {
                         type="time"
                         value={hora(d.breakStartMin)}
                         onChange={(e) => mudar(wd, { breakStartMin: e.target.value ? hhmmParaMinutos(e.target.value) : null, ...(e.target.value ? {} : { breakEndMin: null }) })}
-                        className={inputCls}
+                        className="h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-800 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
                       />
                     </div>
                     <div>
@@ -146,7 +146,7 @@ export default function HorariosPage() {
                         type="time"
                         value={hora(d.breakEndMin)}
                         onChange={(e) => mudar(wd, { breakEndMin: e.target.value ? hhmmParaMinutos(e.target.value) : null })}
-                        className={inputCls}
+                        className="h-11 w-full rounded-xl border border-zinc-200 bg-white px-3 text-sm text-zinc-800 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
                       />
                     </div>
                   </div>

@@ -19,8 +19,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     <div className="min-h-screen">
       <header className="sticky top-0 z-30 border-b border-zinc-200/60 bg-white/80 backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl items-center gap-3 px-3 py-2 sm:px-6">
-          <span className="font-semibold text-zinc-900">Painel</span>
-          <nav className="-mx-1 flex flex-1 gap-2 overflow-x-auto whitespace-nowrap px-1 py-2 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          <span className="shrink-0 font-semibold text-zinc-900">Painel</span>
+          <nav className="flex flex-1 gap-2 overflow-x-auto whitespace-nowrap py-2 px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
             {LINKS.map((l) => {
               const ativo = l.href === "/admin" ? pathname === "/admin" : pathname.startsWith(l.href);
               return (

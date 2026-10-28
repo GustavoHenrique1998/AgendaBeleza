@@ -102,10 +102,14 @@ export default function AgendaAdmin() {
     <div className="mx-auto max-w-7xl p-3 sm:p-6">
       {/* Navegação de data */}
       <div className="mb-4 flex flex-wrap items-center gap-2">
-        <button onClick={() => setData(somaDias(data, -1))} className="rounded-lg border px-3 py-2" aria-label="Dia anterior">←</button>
-        <button onClick={() => setData(hojeISO())} className="rounded-lg border px-3 py-2 text-sm">Hoje</button>
-        <button onClick={() => setData(somaDias(data, 1))} className="rounded-lg border px-3 py-2" aria-label="Próximo dia">→</button>
-        <input type="date" value={data} onChange={(e) => e.target.value && setData(e.target.value)} className="rounded-lg border px-3 py-2 text-sm" />
+        <div className="flex w-full items-center justify-between gap-2 md:w-auto md:flex-1">
+          <button onClick={() => setData(somaDias(data, -1))} className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-lg font-medium text-zinc-700 transition hover:bg-zinc-200 active:scale-95" aria-label="Dia anterior">←</button>
+          <label className="flex h-10 flex-1 cursor-pointer items-center justify-center rounded-xl border border-zinc-200/80 bg-zinc-50 px-3 text-center text-sm font-medium text-zinc-800 shadow-sm transition hover:border-zinc-300 md:max-w-xs">
+            <span className="mr-2 text-base">📅</span>
+            <input type="date" value={data} onChange={(e) => e.target.value && setData(e.target.value)} className="w-full bg-transparent text-center text-sm text-zinc-800 outline-none" />
+          </label>
+          <button onClick={() => setData(somaDias(data, 1))} className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-lg font-medium text-zinc-700 transition hover:bg-zinc-200 active:scale-95" aria-label="Próximo dia">→</button>
+        </div>
         <h1 className="ml-1 text-lg font-semibold capitalize">{dataExtenso}</h1>
         <label className="ml-auto flex items-center gap-2 text-sm text-neutral-600">
           <input type="checkbox" checked={mostrarCancelados} onChange={(e) => setMostrarCancelados(e.target.checked)} />

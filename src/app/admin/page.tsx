@@ -187,49 +187,35 @@ export default function DashboardPage() {
       {dados && (
         <section className="rounded-2xl border border-neutral-200 bg-white p-4 shadow-sm">
           <div className="mb-4 flex flex-col gap-3">
-            <div className="flex w-full items-center justify-between gap-2 sm:flex-row">
-              <div className="flex w-full items-center justify-between gap-2">
-                <button
-                  type="button"
-                  onClick={() => navegarData(-1)}
-                  className="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-lg font-semibold text-neutral-700"
-                  aria-label="Dia anterior"
-                >
-                  ‹
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setSelectedDate(hojeLocal())}
-                  className="flex-1 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm font-semibold text-rose-700"
-                >
-                  Hoje
-                </button>
-                <button
-                  type="button"
-                  onClick={() => navegarData(1)}
-                  className="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-sm font-semibold text-neutral-700"
-                >
-                  Amanhã
-                </button>
-                <button
-                  type="button"
-                  onClick={() => navegarData(1)}
-                  className="flex-1 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-lg font-semibold text-neutral-700"
-                  aria-label="Próximo dia"
-                >
-                  ›
-                </button>
-              </div>
-            </div>
+            <div className="flex w-full items-center justify-between gap-2">
+              <button
+                type="button"
+                onClick={() => navegarData(-1)}
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-lg font-medium text-zinc-700 transition hover:bg-zinc-200 active:scale-95"
+                aria-label="Dia anterior"
+              >
+                ‹
+              </button>
 
-            <div className="w-full">
-              <input
-                type="date"
-                value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
-                className="w-full rounded-lg border border-neutral-300 bg-white px-3 py-2.5 text-sm text-neutral-700 outline-none focus:border-rose-500"
-                aria-label="Selecionar data"
-              />
+              <label className="flex flex-1 h-10 cursor-pointer items-center justify-center rounded-xl border border-zinc-200/80 bg-zinc-50 px-3 text-center text-sm font-medium text-zinc-800 shadow-sm transition hover:border-zinc-300">
+                <span className="mr-2 text-base">📅</span>
+                <input
+                  type="date"
+                  value={selectedDate}
+                  onChange={(e) => setSelectedDate(e.target.value)}
+                  className="w-full bg-transparent text-center text-sm text-zinc-800 outline-none"
+                  aria-label="Selecionar data"
+                />
+              </label>
+
+              <button
+                type="button"
+                onClick={() => navegarData(1)}
+                className="flex h-10 w-10 items-center justify-center rounded-xl bg-zinc-100 text-lg font-medium text-zinc-700 transition hover:bg-zinc-200 active:scale-95"
+                aria-label="Próximo dia"
+              >
+                ›
+              </button>
             </div>
 
             <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">

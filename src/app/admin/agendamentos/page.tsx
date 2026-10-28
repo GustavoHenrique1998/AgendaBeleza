@@ -82,10 +82,12 @@ export default function AgendamentosPage() {
 
       <div className="mb-4 grid w-full grid-cols-2 gap-3">
         <div className="w-full">
-          <Campo rotulo="De"><input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className={inputCls} /></Campo>
+          <label className="mb-1 block text-sm font-medium text-zinc-700">De</label>
+          <input type="date" value={from} onChange={(e) => setFrom(e.target.value)} className={inputCls} />
         </div>
         <div className="w-full">
-          <Campo rotulo="Até"><input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={inputCls} /></Campo>
+          <label className="mb-1 block text-sm font-medium text-zinc-700">Até</label>
+          <input type="date" value={to} onChange={(e) => setTo(e.target.value)} className={inputCls} />
         </div>
         <div className="col-span-2 w-full sm:col-span-1">
           <Campo rotulo="Status">
