@@ -1,18 +1,35 @@
 import { withAuth } from "next-auth/middleware";
+import { NextResponse } from "next/server";
 
-// Protege as páginas. As rotas /api/* fazem a própria checagem no servidor
-// (nunca confie só no frontend).
-export default withAuth({
-  pages: { signIn: "/login" },
-  callbacks: {
-    authorized: ({ token, req }) => {
-      if (!token) return false;
-      if (req.nextUrl.pathname.startsWith("/admin")) return token.role === "ADMIN";
-      return true;
-    },
+export default withAuth(
+  function middleware(req) {
+    const token = req.nextauth.token;
+    const { pathname } = req.nextUrl;
+
+    const isAdminRoute = pathname.startsWith("/admin");
+    const isBookingRoute = pathname === "/agendar" || pathname.startsWith("/agendar/");
+    const isUserRoute = pathname === "/meus-agendamentos" || pathname.startsWith("/meus-agendamentos/");
+
+    if (isAdminRoute) {
+      if (token?.role !== "ADMIN") {
+        return NextResponse.redirect(new URL("/login?error=unauthorized", req.url));
+      }
+      return NextResponse.next();
+    }
+
+    if ((isBookingRoute || isUserRoute) && !token) {
+      return NextResponse.redirect(new URL("/login", req.url));
+    }
+
+    return NextResponse.next();
   },
-});
+  {
+    callbacks: {
+      authorized: ({ token }) => !!token,
+    },
+  }
+);
 
 export const config = {
-  matcher: ["/admin/:path*", "/agendar", "/meus-agendamentos"],
+  matcher: ["/admin/:path*", "/agendar", "/agendar/:path*", "/meus-agendamentos", "/meus-agendamentos/:path*"],
 };

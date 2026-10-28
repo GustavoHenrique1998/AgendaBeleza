@@ -22,4 +22,5 @@ export async function GET() {
   } catch (e) {
     return erroHttp(e);
   }
+  
 }
