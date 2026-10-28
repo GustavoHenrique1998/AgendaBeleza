@@ -197,3 +197,39 @@ model Settings {
   maxAdvanceDays Int    @default(60)  // até quantos dias à frente
   cancelMinHours Int    @default(24)  // antecedência mínima para o cliente cancelar
 }
+-- 1. Criar Profissionais apenas com id, name e active
+INSERT INTO "Professional" ("id", "name", "active") VALUES
+('prof_marina', 'Marina Silva (Cabelo)', true),
+('prof_juliana', 'Juliana Costa (Unhas)', true),
+('prof_larissa', 'Larissa Rocha (Make)', true),
+('prof_completa', 'Camila Santos (Geral)', true)
+ON CONFLICT ("id") DO NOTHING;
+
+-- 2. Vincular serviços aos profissionais
+-- Marina -> Cabelo
+INSERT INTO "_ProfessionalToService" ("A", "B") VALUES
+('prof_marina', 'srv_corte_fem'),
+('prof_marina', 'srv_hidratacao'),
+('prof_marina', 'srv_mechas'),
+('prof_marina', 'srv_escova_simples')
+ON CONFLICT DO NOTHING;
+
+-- Juliana -> Unhas
+INSERT INTO "_ProfessionalToService" ("A", "B") VALUES
+('prof_juliana', 'srv_manicure'),
+('prof_juliana', 'srv_pedicure'),
+('prof_juliana', 'srv_alongamento_gel'),
+('prof_juliana', 'srv_spa_pes')
+ON CONFLICT DO NOTHING;
+
+-- Larissa -> Maquiagem
+INSERT INTO "_ProfessionalToService" ("A", "B") VALUES
+('prof_larissa', 'srv_make_social'),
+('prof_larissa', 'srv_make_express'),
+('prof_larissa', 'srv_make_noiva')
+ON CONFLICT DO NOTHING;
+
+-- Camila -> Todos os serviços
+INSERT INTO "_ProfessionalToService" ("A", "B")
+SELECT 'prof_completa', "id" FROM "Service"
+ON CONFLICT DO NOTHING;
