@@ -37,7 +37,7 @@ export default function AgendamentoCliente() {
   const [categoriaAtiva, setCategoriaAtiva] = useState<string>("Todas");
   const [profissionais, setProfissionais] = useState<Profissional[]>([]);
   const [selecionados, setSelecionados] = useState<string[]>([]);
-  const [profissionalId, setProfissionalId] = useState<string>("ANY");
+  const [selectedProfessionalId, setSelectedProfessionalId] = useState<string | null>("ANY");
   const [data, setData] = useState<string | null>(null);
   const [hora, setHora] = useState<string | null>(null);
   const [horarios, setHorarios] = useState<string[]>([]);
@@ -53,6 +53,8 @@ export default function AgendamentoCliente() {
   const escolhidos = todosServicos.filter((s) => selecionados.includes(s.id));
   const total = escolhidos.reduce((s, x) => s + x.priceCents, 0);
   const minutos = escolhidos.reduce((s, x) => s + x.durationMin, 0);
+  const selectedProfessional = profissionais.find((p) => p.id === selectedProfessionalId) ?? null;
+  const selectedProfessionalParam = !selectedProfessionalId || selectedProfessionalId === "ANY" ? "ANY" : selectedProfessionalId;
 
   useEffect(() => {
     fetch("/api/services").then((r) => r.json()).then(setCategorias);
@@ -64,7 +66,7 @@ export default function AgendamentoCliente() {
     fetch(`/api/professionals?serviceIds=${selecionados.join(",")}`)
       .then((r) => r.json())
       .then(setProfissionais);
-    setProfissionalId("ANY");
+    setSelectedProfessionalId("ANY");
     setData(null);
     setHora(null);
   }, [selecionados]);
@@ -75,7 +77,7 @@ export default function AgendamentoCliente() {
     setCarregandoHorarios(true);
     setHora(null);
     fetch(
-      `/api/availability?serviceIds=${selecionados.join(",")}&professionalId=${professionalId}&date=${data}`
+      `/api/availability?serviceIds=${selecionados.join(",")}&professionalId=${selectedProfessionalParam}&date=${data}`
     )
       .then(async (res) => {
         const body = await res.json().catch(() => ({}));
@@ -90,7 +92,7 @@ export default function AgendamentoCliente() {
         setErro(error instanceof Error ? error.message : "Não foi possível carregar os horários.");
       })
       .finally(() => setCarregandoHorarios(false));
-  }, [passo, data, profissionalId, selecionados]);
+  }, [passo, data, selectedProfessionalParam, selecionados]);
 
   const alternar = (id: string) =>
     setSelecionados((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
@@ -104,10 +106,11 @@ export default function AgendamentoCliente() {
   async function confirmar() {
     setEnviando(true);
     setErro(null);
+    const profissionalParaEnviar = !selectedProfessionalId || selectedProfessionalId === "ANY" ? "ANY" : selectedProfessionalId;
     const res = await fetch("/api/appointments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ serviceIds: selecionados, professionalId, date: data, time: hora }),
+      body: JSON.stringify({ serviceIds: selecionados, professionalId: profissionalParaEnviar, date: data, time: hora }),
     });
     setEnviando(false);
     if (res.ok) return setConcluido(true);
@@ -247,10 +250,10 @@ export default function AgendamentoCliente() {
             {[{ id: "ANY", name: "Qualquer profissional" } as Profissional, ...profissionais].map((p) => (
               <li key={p.id}>
                 <button
-                  onClick={() => setProfissionalId(p.id)}
-                  aria-pressed={profissionalId === p.id}
+                  onClick={() => setSelectedProfessionalId(p.id)}
+                  aria-pressed={selectedProfessionalId === p.id}
                   className={`flex h-full w-full flex-col items-center gap-2 rounded-xl border p-4 text-center transition ${
-                    profissionalId === p.id ? "border-rose-600 bg-rose-50 ring-1 ring-rose-600" : "border-neutral-200"
+                    selectedProfessionalId === p.id ? "border-rose-600 bg-rose-50 ring-1 ring-rose-600" : "border-neutral-200"
                   }`}
                 >
                   <span className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-neutral-100 text-2xl">
@@ -325,7 +328,9 @@ export default function AgendamentoCliente() {
             <div className="rounded-xl border p-4">
               <p className="text-sm text-neutral-500">Profissional</p>
               <p className="font-medium">
-                {profissionalId === "ANY" ? "Qualquer profissional disponível" : profissionais.find((p) => p.id === profissionalId)?.name}
+               {!selectedProfessionalId || selectedProfessionalId === "ANY"
+                 ? "Qualquer profissional disponível"
+                 : selectedProfessional?.name ?? "Profissional selecionado"}
               </p>
             </div>
             <div className="rounded-xl border p-4">
