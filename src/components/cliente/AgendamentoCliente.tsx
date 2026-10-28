@@ -14,9 +14,10 @@ const brl = (c: number) =>
 const duracao = (m: number) =>
   m >= 60 ? `${Math.floor(m / 60)}h${m % 60 ? String(m % 60).padStart(2, "0") : ""}` : `${m} min`;
 
-function proximosDias(qtd = 21) {
+function proximosDias(qtd = 90) {
   return Array.from({ length: qtd }, (_, i) => {
     const d = new Date();
+    d.setHours(12, 0, 0, 0);
     d.setDate(d.getDate() + i);
     const iso = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
     return {
@@ -46,7 +47,7 @@ export default function AgendamentoCliente() {
   const [erro, setErro] = useState<string | null>(null);
   const [concluido, setConcluido] = useState(false);
 
-  const dias = useMemo(() => proximosDias(), []);
+  const dias = useMemo(() => proximosDias(90), []);
   const todosServicos = useMemo(() => categorias.flatMap((c) => c.services), [categorias]);
   const categoriasExibidas = categoriaAtiva === "Todas" ? categorias : categorias.filter((c) => c.name === categoriaAtiva);
   const servicosFiltrados = categoriasExibidas.flatMap((cat) => cat.services);

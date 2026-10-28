@@ -33,7 +33,7 @@ export async function GET(req: Request) {
         where: { startsAt: { lt: fim }, endsAt: { gt: inicio } },
         orderBy: { startsAt: "asc" },
         include: {
-          client: { select: { id: true, name: true } },
+          client: { select: { id: true, name: true, phone: true } },
           professional: { select: { name: true } },
           services: { orderBy: { position: "asc" } },
         },
@@ -129,6 +129,7 @@ export async function GET(req: Request) {
       endMin: clamp(paraMin(x.endsAt)),
       status: x.status,
       clientName: x.client.name,
+      clientPhone: x.client.phone ?? null,
       professionalName: x.professional.name,
       servicos: x.services.map((s: any) => s.name),
       totalCents: x.totalCents,
