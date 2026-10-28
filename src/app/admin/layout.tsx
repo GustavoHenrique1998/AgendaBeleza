@@ -6,7 +6,7 @@ const LINKS = [
   { href: "/admin", rotulo: "Resumo" },
   { href: "/admin/agenda", rotulo: "Agenda" },
   { href: "/admin/agendamentos", rotulo: "Agendamentos" },
-  { href: "/admin/horarios", rotulo: "Horários" },
+  { href: "/admin/horarios", rotulo: "Horários de Atendimento" },
   { href: "/admin/bloqueios", rotulo: "Bloqueios" },
   { href: "/admin/servicos", rotulo: "Serviços" },
   { href: "/admin/profissionais", rotulo: "Profissionais" },

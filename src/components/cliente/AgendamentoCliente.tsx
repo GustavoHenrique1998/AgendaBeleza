@@ -77,8 +77,18 @@ export default function AgendamentoCliente() {
     fetch(
       `/api/availability?serviceIds=${selecionados.join(",")}&professionalId=${professionalId}&date=${data}`
     )
-      .then((r) => r.json())
-      .then((r) => setHorarios(r.horarios ?? []))
+      .then(async (res) => {
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          throw new Error(body?.error ?? "Não foi possível carregar os horários.");
+        }
+        return Array.isArray(body?.horarios) ? body.horarios : [];
+      })
+      .then((lista) => setHorarios(lista || []))
+      .catch((error) => {
+        setHorarios([]);
+        setErro(error instanceof Error ? error.message : "Não foi possível carregar os horários.");
+      })
       .finally(() => setCarregandoHorarios(false));
   }, [passo, data, profissionalId, selecionados]);
 
@@ -274,17 +284,24 @@ export default function AgendamentoCliente() {
 
             <div className="mt-5">
               {!data && <p className="text-neutral-500">Escolha um dia para ver os horários.</p>}
-              {data && carregandoHorarios && <p className="text-neutral-500">Buscando horários…</p>}
-              {data && !carregandoHorarios && horarios.length === 0 && (
+              {data && carregandoHorarios && (
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4" aria-live="polite" aria-busy="true">
+                  {Array.from({ length: 6 }).map((_, index) => (
+                    <div key={index} className="h-12 animate-pulse rounded-lg bg-neutral-200" />
+                  ))}
+                </div>
+              )}
+              {data && !carregandoHorarios && (horarios || []).length === 0 && (
                 <p className="rounded-xl bg-neutral-50 p-4 text-neutral-600">
-                  Sem horários livres neste dia. Tente outra data{profissionalId !== "ANY" && " ou outro profissional"}.
+                  Nenhum horário disponível para esta data.
                 </p>
               )}
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
-                {horarios.map((h) => (
+                {(horarios || []).map((h) => (
                   <button
                     key={h}
                     onClick={() => setHora(h)}
+                    aria-label={`Selecionar horário ${h}`}
                     className={`rounded-lg border py-3 font-medium ${
                       hora === h ? "border-rose-600 bg-rose-600 text-white" : "border-neutral-200 active:bg-neutral-50"
                     }`}

@@ -17,15 +17,36 @@ type Dados = { salao: Dia[]; profissionais: { id: string; name: string; dias: Di
 const NOMES = ["Domingo", "Segunda", "Terça", "Quarta", "Quinta", "Sexta", "Sábado"];
 const ORDEM = [1, 2, 3, 4, 5, 6, 0]; // semana começando na segunda
 
+const semanaPadrao = (): Dia[] =>
+  Array.from({ length: 7 }, (_, weekday) => ({
+    weekday,
+    isOpen: weekday >= 1 && weekday <= 6,
+    startMin: 8 * 60,
+    endMin: 18 * 60,
+    breakStartMin: weekday >= 1 && weekday <= 6 ? 12 * 60 : null,
+    breakEndMin: weekday >= 1 && weekday <= 6 ? 13 * 60 : null,
+  }));
+
 export default function HorariosPage() {
   const [dados, setDados] = useState<Dados | null>(null);
   const [escopo, setEscopo] = useState<string>("SALAO"); // "SALAO" ou id do profissional
-  const [dias, setDias] = useState<Dia[]>([]);
+  const [dias, setDias] = useState<Dia[]>(semanaPadrao());
   const [msg, setMsg] = useState<{ tipo: "erro" | "ok"; texto: string } | null>(null);
   const [salvando, setSalvando] = useState(false);
 
   const carregar = useCallback(() => {
-    api<Dados>("/api/admin/schedules").then(setDados).catch((e) => setMsg({ tipo: "erro", texto: e.message }));
+    api<Dados>("/api/admin/schedules")
+      .then((resposta) => {
+        const dadosNormalizados: Dados = {
+          salao: resposta?.salao?.length ? resposta.salao : semanaPadrao(),
+          profissionais: (resposta?.profissionais ?? []).map((p) => ({
+            ...p,
+            dias: p.dias?.length ? p.dias : semanaPadrao(),
+          })),
+        };
+        setDados(dadosNormalizados);
+      })
+      .catch((e) => setMsg({ tipo: "erro", texto: e.message }));
   }, []);
   useEffect(carregar, [carregar]);
 
@@ -58,7 +79,7 @@ export default function HorariosPage() {
 
   return (
     <main className="mx-auto max-w-4xl p-3 sm:p-6">
-      <h1 className="mb-1 text-2xl font-semibold">Horários de trabalho</h1>
+      <h1 className="mb-1 text-2xl font-semibold">Horários de Atendimento</h1>
       <p className="mb-4 text-sm text-neutral-600">
         O horário de cada profissional vale dentro do expediente do salão. Dias desmarcados são folga.
       </p>

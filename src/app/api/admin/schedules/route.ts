@@ -16,6 +16,17 @@ type Dia = {
   breakEndMin: number | null;
 };
 
+function semanaPadrao(): Dia[] {
+  return Array.from({ length: 7 }, (_, weekday) => ({
+    weekday,
+    isOpen: weekday >= 1 && weekday <= 6,
+    startMin: 8 * 60,
+    endMin: 18 * 60,
+    breakStartMin: weekday >= 1 && weekday <= 6 ? 12 * 60 : null,
+    breakEndMin: weekday >= 1 && weekday <= 6 ? 13 * 60 : null,
+  }));
+}
+
 // Sempre devolve 7 dias (0=domingo..6=sábado); dia sem linha = fechado
 function completarSemana(linhas: Dia[]): Dia[] {
   return Array.from({ length: 7 }, (_, weekday) => {
@@ -34,13 +45,20 @@ export async function GET() {
       prisma.workSchedule.findMany(),
       prisma.professional.findMany({ where: { active: true }, orderBy: { name: "asc" } }),
     ]);
+
+    const salaoLinhas = linhas.filter((l: any) => l.professionalId === null);
+    const salaoPadrao = salaoLinhas.length > 0 ? completarSemana(salaoLinhas) : semanaPadrao();
+
     return NextResponse.json({
-      salao: completarSemana(linhas.filter((l: any) => l.professionalId === null)),
-      profissionais: profs.map((p: any) => ({
-        id: p.id,
-        name: p.name,
-        dias: completarSemana(linhas.filter((l: any) => l.professionalId === p.id)),
-      })),
+      salao: salaoPadrao,
+      profissionais: profs.map((p: any) => {
+        const diasProf = linhas.filter((l: any) => l.professionalId === p.id);
+        return {
+          id: p.id,
+          name: p.name,
+          dias: diasProf.length > 0 ? completarSemana(diasProf) : semanaPadrao(),
+        };
+      }),
     });
   } catch (e) {
     return erroHttp(e);
