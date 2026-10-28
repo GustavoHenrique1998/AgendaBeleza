@@ -5,7 +5,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 
-type Servico = { id: string; name: string; priceCents: number; durationMin: number };
+type Servico = { id: string; name: string; description?: string | null; priceCents: number; durationMin: number };
 type Categoria = { id: string; name: string; services: Servico[] };
 type Profissional = { id: string; name: string; photoUrl?: string | null };
 
@@ -34,6 +34,7 @@ const PASSOS = ["Serviços", "Profissional", "Data e hora", "Confirmar"];
 export default function AgendamentoCliente() {
   const [passo, setPasso] = useState(0);
   const [categorias, setCategorias] = useState<Categoria[]>([]);
+  const [categoriaAtiva, setCategoriaAtiva] = useState<string>("Todas");
   const [profissionais, setProfissionais] = useState<Profissional[]>([]);
   const [selecionados, setSelecionados] = useState<string[]>([]);
   const [profissionalId, setProfissionalId] = useState<string>("ANY");
@@ -47,6 +48,8 @@ export default function AgendamentoCliente() {
 
   const dias = useMemo(() => proximosDias(), []);
   const todosServicos = useMemo(() => categorias.flatMap((c) => c.services), [categorias]);
+  const categoriasExibidas = categoriaAtiva === "Todas" ? categorias : categorias.filter((c) => c.name === categoriaAtiva);
+  const servicosFiltrados = categoriasExibidas.flatMap((cat) => cat.services);
   const escolhidos = todosServicos.filter((s) => selecionados.includes(s.id));
   const total = escolhidos.reduce((s, x) => s + x.priceCents, 0);
   const minutos = escolhidos.reduce((s, x) => s + x.durationMin, 0);
@@ -144,41 +147,83 @@ export default function AgendamentoCliente() {
       {/* Conteúdo (padding inferior para não ficar atrás da barra fixa) */}
       <main className="flex-1 px-4 pb-40 pt-4">
         {/* 1. SERVIÇOS */}
-        {passo === 0 &&
-          categorias.map((cat) => (
-            <section key={cat.id} className="mb-6">
-              <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-neutral-500">{cat.name}</h2>
-              <ul className="space-y-2">
-                {cat.services.map((s) => {
-                  const ativo = selecionados.includes(s.id);
-                  return (
-                    <li key={s.id}>
+        {passo === 0 && (
+          <div className="space-y-4">
+            <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none]">
+              {[
+                "Todas",
+                ...categorias.map((cat) => cat.name),
+              ].map((categoria) => {
+                const ativa = categoriaAtiva === categoria;
+                return (
+                  <button
+                    key={categoria}
+                    type="button"
+                    onClick={() => setCategoriaAtiva(categoria)}
+                    className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition ${
+                      ativa
+                        ? "border-rose-600 bg-rose-600 text-white shadow-sm"
+                        : "border-neutral-200 bg-white text-neutral-600 hover:border-rose-200 hover:text-rose-600"
+                    }`}
+                    aria-label={`Filtrar por ${categoria}`}
+                  >
+                    {categoria}
+                  </button>
+                );
+              })}
+            </div>
+
+            {categoriasExibidas.map((cat) => (
+              <section key={cat.id} className="space-y-3">
+                <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-500">{cat.name}</h2>
+                <div className="grid gap-3">
+                  {cat.services.map((s) => {
+                    const ativo = selecionados.includes(s.id);
+                    return (
                       <button
+                        key={s.id}
+                        type="button"
                         onClick={() => alternar(s.id)}
                         aria-pressed={ativo}
-                        className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left transition ${
-                          ativo ? "border-rose-600 bg-rose-50 ring-1 ring-rose-600" : "border-neutral-200 active:bg-neutral-50"
+                        className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left transition-all ${
+                          ativo
+                            ? "border-rose-500 bg-rose-50 shadow-[0_0_0_1px_rgba(225,29,72,0.15)]"
+                            : "border-neutral-200 bg-white hover:border-rose-200 hover:bg-rose-50/40"
                         }`}
                       >
                         <span
-                          className={`flex h-6 w-6 shrink-0 items-center justify-center rounded-md border text-sm ${
-                            ativo ? "border-rose-600 bg-rose-600 text-white" : "border-neutral-300"
+                          className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-sm font-bold ${
+                            ativo ? "border-rose-600 bg-rose-600 text-white" : "border-neutral-300 bg-white text-transparent"
                           }`}
                         >
-                          {ativo && "✓"}
+                          {ativo ? "✓" : ""}
                         </span>
                         <span className="min-w-0 flex-1">
-                          <span className="block truncate font-medium">{s.name}</span>
-                          <span className="text-sm text-neutral-500">{duracao(s.durationMin)}</span>
+                          <span className="block text-base font-semibold text-neutral-800">{s.name}</span>
+                          <span className="mt-1 block text-sm text-neutral-600">{s.description || "Atendimento personalizado."}</span>
+                          <span className="mt-2 inline-flex items-center gap-2 text-sm text-neutral-500">
+                            <span>{duracao(s.durationMin)}</span>
+                            <span className="h-1 w-1 rounded-full bg-neutral-300" />
+                            <span>{brl(s.priceCents)}</span>
+                          </span>
                         </span>
-                        <span className="font-semibold">{brl(s.priceCents)}</span>
+                        <span className={`text-sm font-semibold ${ativo ? "text-rose-600" : "text-neutral-700"}`}>
+                          {brl(s.priceCents)}
+                        </span>
                       </button>
-                    </li>
-                  );
-                })}
-              </ul>
-            </section>
-          ))}
+                    );
+                  })}
+                </div>
+              </section>
+            ))}
+
+            {servicosFiltrados.length === 0 && (
+              <p className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 p-4 text-sm text-neutral-500">
+                Nenhum serviço disponível nesta categoria.
+              </p>
+            )}
+          </div>
+        )}
 
         {/* 2. PROFISSIONAL */}
         {passo === 1 && profissionais.length === 0 && (
