@@ -13,6 +13,7 @@ import {
   StatusBadge,
   type Status,
 } from "@/components/ui";
+import { buildWhatsappLink } from "@/lib/whatsapp";
 
 type Linha = {
   id: string;
@@ -128,6 +129,28 @@ export default function AgendamentosPage() {
                 {a.notes && <p className="mt-1 text-sm italic text-neutral-500">“{a.notes}”</p>}
               </div>
               <div className="flex items-center gap-2">
+                {(() => {
+                  const wa = buildWhatsappLink({
+                    clientName: a.clientName,
+                    phone: a.clientPhone,
+                    date: a.date,
+                    time: a.time,
+                    services: a.servicos,
+                    professionalName: a.professionalName,
+                    totalCents: a.totalCents,
+                  });
+                  return wa ? (
+                    <a
+                      href={wa}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
+                      aria-label={`Abrir WhatsApp de ${a.clientName}`}
+                    >
+                      WhatsApp
+                    </a>
+                  ) : null;
+                })()}
                 <StatusBadge status={a.status} />
                 <select
                   aria-label="Alterar status"

@@ -8,8 +8,8 @@ import { obterConfiguracoes } from "./configuracoes";
 import { ErroNegocio } from "./auth";
 import { gerarHorarios, janelasLivres, type Intervalo } from "./intervalos";
 
-/** Status que ocupam a agenda. Cancelado e Falta liberam o horário. */
-export const STATUS_QUE_OCUPAM = ["PENDING", "CONFIRMED", "COMPLETED"] as const;
+/** Status que ocupam a agenda. Apenas o cancelamento libera o horário. */
+export const STATUS_QUE_OCUPAM = ["PENDING", "CONFIRMED", "COMPLETED", "NO_SHOW"] as const;
 
 export interface OpcoesDisponibilidade {
   /** Admin lançando manualmente: ignora antecedência mínima e limite de dias à frente. */
@@ -73,11 +73,11 @@ export async function horariosDisponiveis(params: {
     prisma.appointment.findMany({
       where: {
         professionalId,
-        status: { in: [...STATUS_QUE_OCUPAM] },
+        status: { not: "CANCELLED" },
         startsAt: { lt: fim },
         endsAt: { gt: inicio },
       },
-      select: { startsAt: true, endsAt: true },
+      select: { startsAt: true, endsAt: true, status: true },
     }),
     prisma.timeBlock.findMany({
       where: {
@@ -99,7 +99,9 @@ export async function horariosDisponiveis(params: {
   }));
 
   const livres = janelasLivres(salao, profissional, ocupados);
-  const minimoMin = paraMin(new Date(agora.getTime() + (ignorar ? 0 : config.minAdvanceMin) * 60000));
+  const agoraMin = agora.getHours() * 60 + agora.getMinutes();
+  const limiteHoje = date === hoje ? agoraMin + (ignorar ? 0 : config.minAdvanceMin) : 0;
+  const minimoMin = Math.max(limiteHoje, 0);
 
   return gerarHorarios(livres, duracaoTotalMin, config.slotStepMin, minimoMin).map(minutosParaHHMM);
 }

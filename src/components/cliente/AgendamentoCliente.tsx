@@ -4,6 +4,7 @@
 // Passo 4 — Fluxo de agendamento do cliente (mobile-first, Tailwind)
 
 import { useEffect, useMemo, useState } from "react";
+import { buildWhatsappLink } from "@/lib/whatsapp";
 
 type Servico = { id: string; name: string; description?: string | null; priceCents: number; durationMin: number };
 type Categoria = { id: string; name: string; services: Servico[] };
@@ -56,6 +57,18 @@ export default function AgendamentoCliente() {
   const minutos = escolhidos.reduce((s, x) => s + x.durationMin, 0);
   const selectedProfessional = profissionais.find((p) => p.id === selectedProfessionalId) ?? null;
   const selectedProfessionalParam = selectedProfessionalId && selectedProfessionalId !== "ANY" ? selectedProfessionalId : "ANY";
+  const comprovanteLink = useMemo(() => {
+    if (!data || !hora || !escolhidos.length) return null;
+    return buildWhatsappLink({
+      clientName: "Cliente",
+      phone: null,
+      date: data,
+      time: hora,
+      services: escolhidos.map((s) => s.name),
+      professionalName: selectedProfessional?.name ?? "Profissional disponível",
+      totalCents: total,
+    }, process.env.NEXT_PUBLIC_SALAO_WHATSAPP ?? "5511999999999");
+  }, [data, hora, escolhidos, selectedProfessional?.name, total]);
 
   useEffect(() => {
     fetch("/api/services").then((r) => r.json()).then(setCategorias);
@@ -130,7 +143,18 @@ export default function AgendamentoCliente() {
         <p className="text-neutral-600">
           {data && dias.find((d) => d.iso === data)?.completo} às {hora}
         </p>
-        <a href="/meus-agendamentos" className="mt-2 w-full rounded-xl bg-rose-600 py-3 font-medium text-white">
+        {comprovanteLink ? (
+          <a
+            href={comprovanteLink}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2 flex w-full items-center justify-center gap-2 rounded-xl bg-emerald-600 py-3 font-medium text-white shadow-sm transition hover:bg-emerald-500"
+          >
+            <span aria-hidden="true">💬</span>
+            Enviar comprovante pelo WhatsApp
+          </a>
+        ) : null}
+        <a href="/meus-agendamentos" className="mt-2 w-full rounded-xl bg-zinc-900 py-3 font-medium text-white shadow-sm transition hover:bg-zinc-800">
           Ver meus agendamentos
         </a>
       </main>

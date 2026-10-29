@@ -4,6 +4,7 @@ import { api } from "@/lib/api";
 import { brl } from "@/lib/formatar";
 import { minutosParaHHMM } from "@/lib/datas";
 import { StatusBadge, type Status, btnGhost, btnPrimary } from "@/components/ui";
+import { buildWhatsappLink } from "@/lib/whatsapp";
 
 type Resumo = { total: number; faturamentoEstimadoCents: number; concluidos: number; clientes: number };
 type Linha = {
@@ -103,10 +104,16 @@ export default function DashboardPage() {
     setSelectedDate(paraIsoLocal(base));
   };
 
-  const waLink = (phone?: string | null) => {
-    const digits = (phone ?? "").replace(/\D/g, "");
-    if (!digits) return null;
-    return `https://wa.me/55${digits.replace(/^55/, "")}`;
+  const waLink = (item: { clientName?: string | null; clientPhone?: string | null; date: string; professionalName?: string; servicos: string[]; totalCents: number; time: string; }) => {
+    return buildWhatsappLink({
+      clientName: item.clientName,
+      phone: item.clientPhone,
+      date: item.date,
+      time: item.time,
+      services: item.servicos,
+      professionalName: item.professionalName,
+      totalCents: item.totalCents,
+    });
   };
 
   const atualizarStatus = async (id: string, status: Status) => {
@@ -274,7 +281,15 @@ export default function DashboardPage() {
               </div>
             ) : (
               listaFiltrada.map((item) => {
-                const wa = waLink(item.clientPhone);
+                const wa = waLink({
+                  clientName: item.clientName,
+                  clientPhone: item.clientPhone,
+                  date: selectedDate,
+                  time: minutosParaHHMM(item.startMin),
+                  professionalName: item.professionalName,
+                  servicos: item.servicos,
+                  totalCents: item.totalCents,
+                });
                 return (
                   <article key={item.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 shadow-sm">
                     <div className="flex items-start justify-between gap-3">
