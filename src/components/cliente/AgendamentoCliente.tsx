@@ -138,8 +138,21 @@ export default function AgendamentoCliente() {
   if (concluido) {
     return (
       <main className="mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-4 p-6 text-center">
-        <div className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-3xl">✓</div>
-        <h1 className="text-2xl font-semibold">Agendamento realizado!</h1>
+        <div className="success-check flex h-20 w-20 items-center justify-center rounded-full bg-emerald-100 ring-8 ring-emerald-50">
+          <svg viewBox="0 0 52 52" className="h-10 w-10" aria-hidden="true">
+            <circle cx="26" cy="26" r="23" fill="none" stroke="rgba(16,185,129,0.25)" strokeWidth="2" />
+            <path
+              className="checkmark"
+              d="M14 27.5L22 35L38 19"
+              fill="none"
+              stroke="#0f766e"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
+        </div>
+        <h1 className="font-serif text-3xl font-semibold tracking-tight text-zinc-900">Agendamento realizado!</h1>
         <p className="text-neutral-600">
           {data && dias.find((d) => d.iso === data)?.completo} às {hora}
         </p>
@@ -171,7 +184,7 @@ export default function AgendamentoCliente() {
               ←
             </button>
           )}
-          <h1 className="text-lg font-semibold text-zinc-900">{PASSOS[passo]}</h1>
+          <h1 className="font-serif text-lg font-semibold tracking-tight text-zinc-900">{PASSOS[passo]}</h1>
           <span className="ml-auto text-sm text-zinc-500">
             {passo + 1}/{PASSOS.length}
           </span>
@@ -184,76 +197,76 @@ export default function AgendamentoCliente() {
       </header>
 
       {/* Conteúdo (padding inferior para não ficar atrás da barra fixa) */}
-      <main className="flex-1 px-4 pb-40 pt-4">
+      <main className="flex-1 px-4 pb-28 pt-4 opacity-100 transition-opacity duration-300">
         {/* 1. SERVIÇOS */}
         {passo === 0 && (
           <div className="space-y-4">
             <div className="flex gap-2 overflow-x-auto pb-1 [-ms-overflow-style:none] [scrollbar-width:none]">
-              {[
-                "Todas",
-                ...categorias.map((cat) => cat.name),
-              ].map((categoria) => {
-                const ativa = categoriaAtiva === categoria;
-                return (
-                  <button
-                    key={categoria}
-                    type="button"
-                    onClick={() => setCategoriaAtiva(categoria)}
-                    className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition ${
-                      ativa
-                        ? "border-rose-300 bg-rose-50/60 text-rose-950 shadow-sm"
-                        : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 hover:text-zinc-900"
-                    }`}
-                    aria-label={`Filtrar por ${categoria}`}
-                  >
-                    {categoria}
-                  </button>
-                );
-              })}
+             {[
+               "Todas",
+               ...categorias.map((cat) => cat.name),
+             ].map((categoria) => {
+               const ativa = categoriaAtiva === categoria;
+               return (
+                 <button
+                   key={categoria}
+                   type="button"
+                   onClick={() => setCategoriaAtiva(categoria)}
+                   className={`shrink-0 rounded-full border px-4 py-2 text-sm font-medium transition-all duration-150 active:scale-[0.98] ${
+                     ativa
+                       ? "border-rose-300 bg-rose-50/60 text-rose-950 shadow-sm"
+                       : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-300 hover:text-zinc-900"
+                   }`}
+                   aria-label={`Filtrar por ${categoria}`}
+                 >
+                   {categoria}
+                 </button>
+               );
+             })}
             </div>
 
             {categoriasExibidas.map((cat) => (
-              <section key={cat.id} className="space-y-3">
-                <h2 className="text-xs font-semibold uppercase tracking-[0.12em] text-neutral-500">{cat.name}</h2>
-                <div className="grid gap-3">
-                  {cat.services.map((s) => {
-                    const ativo = selecionados.includes(s.id);
-                    return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        onClick={() => alternar(s.id)}
-                        aria-pressed={ativo}
-                        className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left shadow-sm transition-all duration-200 active:scale-[0.99] ${
-                          ativo
-                            ? "border-rose-300 bg-rose-50/60 shadow-md"
-                            : "border-zinc-200/80 bg-white hover:border-zinc-300 hover:shadow-md"
-                        }`}
-                      >
-                        <span
-                          className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-sm font-bold ${
-                            ativo ? "border-rose-300 bg-rose-50 text-rose-950" : "border-zinc-300 bg-white text-transparent"
-                          }`}
-                        >
-                          {ativo ? "✓" : ""}
-                        </span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block text-base font-semibold text-zinc-900">{s.name}</span>
-                          <span className="mt-1 block text-sm text-zinc-600">{s.description || "Atendimento personalizado."}</span>
-                          <span className="mt-2 inline-flex items-center gap-2 text-sm text-zinc-500">
-                            <span>{duracao(s.durationMin)}</span>
-                            <span className="h-1 w-1 rounded-full bg-zinc-300" />
-                            <span>{brl(s.priceCents)}</span>
-                          </span>
-                        </span>
-                        <span className={`text-sm font-semibold ${ativo ? "text-rose-950" : "text-zinc-700"}`}>
-                          {brl(s.priceCents)}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              </section>
+             <section key={cat.id} className="space-y-3">
+               <h2 className="micro-label">{cat.name}</h2>
+               <div className="grid gap-3">
+                 {cat.services.map((s) => {
+                   const ativo = selecionados.includes(s.id);
+                   return (
+                     <button
+                       key={s.id}
+                       type="button"
+                       onClick={() => alternar(s.id)}
+                       aria-pressed={ativo}
+                       className={`flex w-full items-start gap-3 rounded-2xl border p-4 text-left shadow-sm transition-all duration-150 active:scale-[0.98] ${
+                         ativo
+                           ? "border-zinc-900 bg-rose-50/40 shadow-md ring-1 ring-zinc-900/10"
+                           : "border-zinc-200/70 bg-white hover:border-zinc-300 hover:shadow-md"
+                       }`}
+                     >
+                       <span
+                         className={`mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full border text-sm font-bold ${
+                           ativo ? "border-zinc-900 bg-zinc-900 text-white" : "border-zinc-300 bg-white text-transparent"
+                         }`}
+                       >
+                         {ativo ? "✓" : ""}
+                       </span>
+                       <span className="min-w-0 flex-1">
+                         <span className="block text-base font-semibold text-zinc-900">{s.name}</span>
+                         <span className="mt-1 block text-sm text-zinc-600">{s.description || "Atendimento personalizado."}</span>
+                         <span className="mt-2 inline-flex items-center gap-2 text-sm text-zinc-500">
+                           <span>{duracao(s.durationMin)}</span>
+                           <span className="h-1 w-1 rounded-full bg-zinc-300" />
+                           <span>{brl(s.priceCents)}</span>
+                         </span>
+                       </span>
+                       <span className={`font-serif text-lg font-semibold ${ativo ? "text-zinc-900" : "text-zinc-700"}`}>
+                         {brl(s.priceCents)}
+                       </span>
+                     </button>
+                   );
+                 })}
+               </div>
+             </section>
             ))}
 
             {servicosFiltrados.length === 0 && (
@@ -273,22 +286,34 @@ export default function AgendamentoCliente() {
         )}
         {passo === 1 && (
           <ul className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {[{ id: "ANY", name: "Qualquer profissional" } as Profissional, ...profissionais].map((p) => (
-              <li key={p.id}>
-                <button
-                  onClick={() => setSelectedProfessionalId(p.id)}
-                  aria-pressed={selectedProfessionalId === p.id}
-                  className={`flex h-full w-full flex-col items-center gap-2 rounded-xl border p-4 text-center transition ${
-                    selectedProfessionalId === p.id ? "border-rose-300 bg-rose-50/60 ring-1 ring-rose-200" : "border-zinc-200 bg-white"
-                  }`}
-                >
-                  <span className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-neutral-100 text-2xl">
-                    {p.photoUrl ? <img src={p.photoUrl} alt="" className="h-full w-full object-cover" /> : p.id === "ANY" ? "✨" : p.name[0]}
-                  </span>
-                  <span className="text-sm font-medium leading-tight">{p.name}</span>
-                </button>
-              </li>
-            ))}
+            {[{ id: "ANY", name: "Qualquer profissional" } as Profissional, ...profissionais].map((p) => {
+              const ativo = selectedProfessionalId === p.id;
+              return (
+                <li key={p.id}>
+                  <button
+                    onClick={() => setSelectedProfessionalId(p.id)}
+                    aria-pressed={ativo}
+                    className={`flex h-full w-full flex-col items-center gap-3 rounded-2xl border p-4 text-center transition-all duration-150 active:scale-[0.98] ${
+                      ativo
+                        ? "border-zinc-900 bg-rose-50/40 ring-1 ring-zinc-900/10 shadow-md"
+                        : "border-zinc-200/70 bg-white hover:border-zinc-300 hover:shadow-md"
+                    }`}
+                  >
+                    <span className={`flex h-16 w-16 items-center justify-center overflow-hidden rounded-full bg-neutral-100 text-2xl ring-2 ring-offset-2 ${ativo ? "ring-zinc-200 ring-offset-white" : "ring-zinc-100 ring-offset-white"}`}>
+                      {p.photoUrl ? <img src={p.photoUrl} alt="" className="h-full w-full object-cover" /> : p.id === "ANY" ? "✨" : p.name[0]}
+                    </span>
+                    <div className="space-y-1">
+                      <span className="block font-serif text-lg font-semibold tracking-tight text-zinc-900">{p.name}</span>
+                      <div className="flex flex-wrap justify-center gap-1">
+                        <span className="rounded-full bg-stone-100/80 px-2.5 py-0.5 text-[10px] uppercase tracking-[0.14em] text-stone-700">
+                          {p.id === "ANY" ? "flexível" : "atendimento"}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                </li>
+              );
+            })}
           </ul>
         )}
 
@@ -300,13 +325,13 @@ export default function AgendamentoCliente() {
                 <button
                   key={d.iso}
                   onClick={() => setData(d.iso)}
-                  className={`flex w-16 shrink-0 snap-start flex-col items-center rounded-xl border py-2 ${
-                    data === d.iso ? "border-rose-300 bg-rose-50/60 text-rose-950" : "border-zinc-200 bg-white text-zinc-700"
+                 className={`flex w-16 shrink-0 snap-start flex-col items-center rounded-xl border py-2 transition-all duration-150 active:scale-[0.98] ${
+                   data === d.iso ? "border-zinc-900 bg-zinc-900 text-white shadow-sm" : "border-zinc-200 bg-white text-zinc-700"
                   }`}
                 >
-                  <span className="text-[11px] uppercase tracking-wider text-zinc-500">{d.semana}</span>
-                  <span className="text-xl font-semibold text-zinc-900">{d.dia}</span>
-                  <span className="text-[11px] uppercase tracking-wider text-zinc-500">{d.mes}</span>
+                 <span className={`text-[11px] uppercase tracking-[0.18em] ${data === d.iso ? "text-zinc-200" : "text-zinc-500"}`}>{d.semana}</span>
+                 <span className={`text-xl font-semibold ${data === d.iso ? "text-white" : "text-zinc-900"}`}>{d.dia}</span>
+                 <span className={`text-[11px] uppercase tracking-[0.18em] ${data === d.iso ? "text-zinc-200" : "text-zinc-500"}`}>{d.mes}</span>
                 </button>
               ))}
             </div>
@@ -331,8 +356,8 @@ export default function AgendamentoCliente() {
                     key={h}
                     onClick={() => setHora(h)}
                     aria-label={`Selecionar horário ${h}`}
-                    className={`rounded-lg border py-3 font-medium ${
-                      hora === h ? "border-rose-600 bg-rose-600 text-white" : "border-neutral-200 active:bg-neutral-50"
+                    className={`rounded-xl border py-3 font-medium transition-all duration-150 active:scale-[0.98] ${
+                      hora === h ? "border-zinc-900 bg-zinc-900 text-white shadow-sm" : "border-zinc-200 bg-white text-zinc-700 hover:border-zinc-300"
                     }`}
                   >
                     {h}
@@ -384,12 +409,12 @@ export default function AgendamentoCliente() {
       </main>
 
       {/* Barra fixa inferior (polegar-friendly) */}
-      <footer className="fixed inset-x-0 bottom-0 z-20 border-t border-zinc-100 bg-white/90 px-4 pb-[max(1rem,env(safe-area-inset-bottom))] pt-3 shadow-[0_-8px_24px_rgba(0,0,0,0.06)] backdrop-blur-md">
-        <div className="mx-auto flex max-w-2xl items-center gap-4">
+      <footer className="fixed bottom-3 left-3 right-3 z-40 mx-auto max-w-md rounded-2xl border border-zinc-200/70 bg-white/85 px-4 py-3 shadow-xl shadow-zinc-900/5 backdrop-blur-md">
+        <div className="flex items-center gap-4">
           <div className="min-w-0 flex-1 text-sm">
             {selecionados.length > 0 ? (
               <>
-                <p className="font-semibold">{brl(total)}</p>
+                <p className="font-serif text-xl font-semibold text-zinc-900">{brl(total)}</p>
                 <p className="truncate text-neutral-500">
                   {selecionados.length} serviço{selecionados.length > 1 && "s"} · {duracao(minutos)}
                 </p>
@@ -401,7 +426,7 @@ export default function AgendamentoCliente() {
           <button
             disabled={!podeAvancar || enviando}
             onClick={() => (passo === 3 ? confirmar() : setPasso(passo + 1))}
-            className="rounded-xl bg-zinc-900 px-6 py-3 font-medium text-white shadow-sm transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:bg-zinc-300"
+            className="rounded-xl bg-zinc-900 px-6 py-3 font-medium text-white shadow-sm transition-all duration-150 hover:bg-zinc-800 active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-zinc-300"
           >
             {passo === 3 ? (enviando ? "Agendando…" : "Confirmar") : "Continuar"}
           </button>
