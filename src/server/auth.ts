@@ -25,7 +25,13 @@ export const authOptions: NextAuthOptions = {
         const ok = await bcrypt.compare(password, user.passwordHash);
         if (!ok) return null;
 
-        return { id: user.id, name: user.name, email: user.email, role: user.role } as any;
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+          professionalId: user.professionalId,
+        } as any;
       },
     }),
   ],
@@ -35,6 +41,7 @@ export const authOptions: NextAuthOptions = {
         const dados = user as any;
         token.id = dados.id ?? token.sub;
         token.role = dados.role ?? token.role;
+        token.professionalId = dados.professionalId ?? token.professionalId ?? null;
       }
 
       if (!token.id && token.sub) {
@@ -47,14 +54,15 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         const user = session.user as any;
         user.id = typeof token.id === "string" ? token.id : typeof token.sub === "string" ? token.sub : user.id;
-        user.role = (token.role as "CLIENT" | "ADMIN") ?? "CLIENT";
+        user.role = (token.role as "CLIENT" | "ADMIN" | "PROFESSIONAL") ?? "CLIENT";
+        user.professionalId = typeof token.professionalId === "string" ? token.professionalId : null;
       }
       return session;
     },
   },
 };
 
-export type UsuarioSessao = { id: string; name: string; role: "CLIENT" | "ADMIN" };
+export type UsuarioSessao = { id: string; name: string; role: "CLIENT" | "ADMIN" | "PROFESSIONAL"; professionalId?: string | null };
 
 /**
  * Uso nas rotas:
@@ -71,7 +79,14 @@ export async function exigirSessao(somenteAdmin = false) {
   if (somenteAdmin && u.role !== "ADMIN") {
     return { erro: NextResponse.json({ error: "Acesso restrito ao administrador." }, { status: 403 }) };
   }
-  return { usuario: { id: u.id, name: u.name ?? "", role: u.role } as UsuarioSessao };
+  return {
+    usuario: {
+      id: u.id,
+      name: u.name ?? "",
+      role: u.role,
+      professionalId: u.professionalId ?? null,
+    } as UsuarioSessao,
+  };
 }
 
 /** Para as rotas: converte exceções comuns em respostas HTTP. */

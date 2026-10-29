@@ -20,6 +20,7 @@ datasource db {
 enum Role {
   CLIENT
   ADMIN
+  PROFESSIONAL
 }
 
 enum AppointmentStatus {
@@ -40,16 +41,18 @@ enum AppointmentSource {
 // email e passwordHash são opcionais: o dono pode cadastrar clientes que
 // só ligam/mandam mensagem (sem login). Quem tem os dois consegue entrar.
 model User {
-  id           String   @id @default(cuid())
-  name         String
-  email        String?  @unique
-  phone        String?
-  passwordHash String?
-  role         Role     @default(CLIENT)
-  notes        String?  // observações internas do dono sobre o cliente
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id             String   @id @default(cuid())
+  name           String
+  email          String?  @unique
+  phone          String?
+  passwordHash   String?
+  role           Role     @default(CLIENT)
+  professionalId String?  @unique
+  notes          String?  // observações internas do dono sobre o cliente
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
 
+  professional  Professional? @relation(fields: [professionalId], references: [id])
   appointments Appointment[]
 
   @@index([role])
@@ -91,6 +94,7 @@ model Professional {
   active    Boolean  @default(true)
   createdAt DateTime @default(now())
 
+  user         User?
   services     ProfessionalService[]
   schedules    WorkSchedule[]
   timeBlocks   TimeBlock[]

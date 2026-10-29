@@ -3,7 +3,8 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { hojeNoFuso, limitesDoDia, somarDias, utcParaLocal } from "@/lib/datas";
-import { ErroNegocio, erroHttp, exigirSessao } from "@/server/auth";
+import { authOptions, ErroNegocio, erroHttp } from "@/server/auth";
+import { getServerSession } from "next-auth";
 import { obterConfiguracoes } from "@/server/configuracoes";
 import { criarAgendamento } from "@/server/agendamentos";
 import { dataSchema, horaSchema, lerCorpo, lerQuery, statusSchema } from "@/server/validators";
@@ -15,13 +16,24 @@ const querySchema = z.object({
   to: dataSchema.optional(),
   status: statusSchema.optional(),
   q: z.string().trim().optional(),
+  professionalId: z.string().trim().optional(),
 });
 
 // Lista de agendamentos por período
 export async function GET(req: Request) {
   try {
-    const a = await exigirSessao(true);
-    if ("erro" in a) return a.erro;
+    const sessao = await getServerSession(authOptions);
+    const usuario = sessao?.user as any;
+    if (!usuario?.id) {
+      return NextResponse.json({ error: "Faça login para continuar." }, { status: 401 });
+    }
+    if (usuario.role !== "ADMIN" && usuario.role !== "PROFESSIONAL") {
+      return NextResponse.json({ error: "Acesso restrito." }, { status: 403 });
+    }
+    if (usuario.role === "PROFESSIONAL" && !usuario.professionalId) {
+      return NextResponse.json({ error: "Perfil profissional sem vínculo ativo." }, { status: 403 });
+    }
+
     const q = lerQuery(req.url, querySchema);
     if ("erro" in q) return q.erro;
 
@@ -32,9 +44,17 @@ export async function GET(req: Request) {
     const { inicio } = limitesDoDia(from, config.timezone);
     const { fim } = limitesDoDia(to, config.timezone);
 
+    const professionalFilter =
+      usuario.role === "PROFESSIONAL"
+        ? { professionalId: usuario.professionalId }
+        : q.dados.professionalId
+          ? { professionalId: q.dados.professionalId }
+          : undefined;
+
     const lista = await prisma.appointment.findMany({
       where: {
         startsAt: { gte: inicio, lt: fim },
+        ...(professionalFilter ? { professionalId: professionalFilter.professionalId } : {}),
         ...(q.dados.status ? { status: q.dados.status } : {}),
         ...(q.dados.q ? { client: { name: { contains: q.dados.q, mode: "insensitive" as const } } } : {}),
       },

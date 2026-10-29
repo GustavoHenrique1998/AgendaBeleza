@@ -62,6 +62,7 @@ export default function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState<string>(hojeLocal());
   const [erro, setErro] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(true);
+  const [perfil, setPerfil] = useState<{ role?: string; professionalId?: string | null } | null>(null);
 
   const carregarDados = async (date = selectedDate) => {
     try {
@@ -80,16 +81,33 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
+    fetch("/api/auth/session")
+      .then((r) => (r.ok ? r.json() : null))
+      .then((session) => {
+        const user = session?.user ?? {};
+        setPerfil({ role: user.role, professionalId: user.professionalId ?? null });
+      })
+      .catch(() => setPerfil(null));
+  }, []);
+
+  useEffect(() => {
     carregarDados(selectedDate);
   }, [selectedDate]);
 
   const profissionais = dados?.profissionais ?? [];
+  const isProfessional = perfil?.role === "PROFESSIONAL" || Boolean(perfil?.professionalId);
+  const profissionaisVisiveis = isProfessional ? profissionais.filter((p) => p.id === perfil?.professionalId) : profissionais;
   const listaFiltrada = useMemo(() => {
     if (!dados) return [];
-    return dados.lista.filter((agendamento) =>
-      filtroProfissional === "todos" ? true : agendamento.professionalName === profissionais.find((p) => p.id === filtroProfissional)?.name
-    );
-  }, [dados, filtroProfissional, profissionais]);
+    return dados.lista.filter((agendamento) => {
+      if (isProfessional && perfil?.professionalId) {
+        return agendamento.professionalName === profissionais.find((p) => p.id === perfil.professionalId)?.name;
+      }
+      return filtroProfissional === "todos"
+        ? true
+        : agendamento.professionalName === profissionais.find((p) => p.id === filtroProfissional)?.name;
+    });
+  }, [dados, filtroProfissional, isProfessional, perfil?.professionalId, profissionais]);
 
   const cards = dados && [
     { t: "Agendamentos do dia", v: dados.resumo.total },
@@ -225,134 +243,141 @@ export default function DashboardPage() {
               </button>
             </div>
 
-            <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
-              <button
-                type="button"
-                onClick={() => setFiltroProfissional("todos")}
-                className={`shrink-0 rounded-full px-3 py-2 text-sm font-medium ${
-                  filtroProfissional === "todos" ? "bg-rose-600 text-white" : "border border-neutral-200 bg-white text-neutral-700"
-                }`}
-              >
-                Todos
-              </button>
-              {profissionais.map((profissional) => (
+            {!isProfessional && (
+              <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                 <button
-                  key={profissional.id}
                   type="button"
-                  onClick={() => setFiltroProfissional(profissional.id)}
+                  onClick={() => setFiltroProfissional("todos")}
                   className={`shrink-0 rounded-full px-3 py-2 text-sm font-medium ${
-                    filtroProfissional === profissional.id ? "bg-rose-600 text-white" : "border border-neutral-200 bg-white text-neutral-700"
+                    filtroProfissional === "todos" ? "bg-rose-600 text-white" : "border border-neutral-200 bg-white text-neutral-700"
                   }`}
                 >
-                  {profissional.name}
+                  Todos
                 </button>
-              ))}
-            </div>
-
-            <div className="flex flex-wrap items-center gap-2">
-              {profissionais
-                .filter((profissional) => profissional.id === filtroProfissional || filtroProfissional === "todos")
-                .slice(0, 1)
-                .map((profissional) => (
-                  <div key={profissional.id} className="flex gap-2">
-                    <button
-                      type="button"
-                      className={btnGhost + " text-sm"}
-                      onClick={() => ajustarDisponibilidade(profissional.id, true)}
-                    >
-                      Disponível hoje
-                    </button>
-                    <button
-                      type="button"
-                      className={btnGhost + " text-sm"}
-                      onClick={() => ajustarDisponibilidade(profissional.id, false)}
-                    >
-                      Bloquear/folga
-                    </button>
-                  </div>
+                {profissionais.map((profissional) => (
+                  <button
+                    key={profissional.id}
+                    type="button"
+                    onClick={() => setFiltroProfissional(profissional.id)}
+                    className={`shrink-0 rounded-full px-3 py-2 text-sm font-medium ${
+                      filtroProfissional === profissional.id ? "bg-rose-600 text-white" : "border border-neutral-200 bg-white text-neutral-700"
+                    }`}
+                  >
+                    {profissional.name}
+                  </button>
                 ))}
-            </div>
+              </div>
+            )}
+
+            {!isProfessional && (
+              <div className="flex flex-wrap items-center gap-2">
+                {profissionais
+                  .filter((profissional) => profissional.id === filtroProfissional || filtroProfissional === "todos")
+                  .slice(0, 1)
+                  .map((profissional) => (
+                    <div key={profissional.id} className="flex gap-2">
+                      <button
+                        type="button"
+                        className={btnGhost + " text-sm"}
+                        onClick={() => ajustarDisponibilidade(profissional.id, true)}
+                      >
+                        Disponível hoje
+                      </button>
+                      <button
+                        type="button"
+                        className={btnGhost + " text-sm"}
+                        onClick={() => ajustarDisponibilidade(profissional.id, false)}
+                      >
+                        Bloquear/folga
+                      </button>
+                    </div>
+                  ))}
+              </div>
+            )}
           </div>
 
           <div className="space-y-3">
             {listaFiltrada.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-neutral-200 bg-neutral-50 p-6 text-center text-sm text-neutral-500">
-                Nenhum agendamento para este dia.
+              <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-200 bg-zinc-50/60 px-6 text-center">
+                <p className="text-lg font-medium text-zinc-700">Nenhum agendamento para este dia.</p>
+                <p className="mt-1 text-sm text-zinc-500">A agenda está livre ou ainda não há atendimentos cadastrados.</p>
               </div>
             ) : (
-              listaFiltrada.map((item) => {
-                const wa = waLink({
-                  clientName: item.clientName,
-                  clientPhone: item.clientPhone,
-                  date: selectedDate,
-                  time: minutosParaHHMM(item.startMin),
-                  professionalName: item.professionalName,
-                  servicos: item.servicos,
-                  totalCents: item.totalCents,
-                });
-                return (
-                  <article key={item.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4 shadow-sm">
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <p className="text-xs font-medium uppercase tracking-[0.12em] text-neutral-500">Horário</p>
-                        <p className="mt-1 text-xl font-semibold text-neutral-900">{minutosParaHHMM(item.startMin)}</p>
+              <div className="space-y-3">
+                {listaFiltrada.map((item) => {
+                  const wa = waLink({
+                    clientName: item.clientName,
+                    clientPhone: item.clientPhone,
+                    date: selectedDate,
+                    time: minutosParaHHMM(item.startMin),
+                    professionalName: item.professionalName,
+                    servicos: item.servicos,
+                    totalCents: item.totalCents,
+                  });
+                  return (
+                    <article key={item.id} className="rounded-2xl border border-zinc-200/80 bg-white p-4 shadow-sm">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-lg font-bold text-zinc-900">{minutosParaHHMM(item.startMin)}</p>
+                          <p className="text-[11px] uppercase tracking-[0.16em] text-zinc-400"> até {minutosParaHHMM(item.endMin)}</p>
+                        </div>
+                        <StatusBadge status={item.status} />
                       </div>
-                      <StatusBadge status={item.status} />
-                    </div>
 
-                    <div className="mt-3 flex items-center justify-between gap-2">
-                      <div>
-                        <p className="text-base font-semibold text-neutral-900">{item.clientName}</p>
-                        <p className="text-xs text-neutral-500">{item.professionalName}</p>
+                      <div className="mt-3 flex items-center justify-between gap-3">
+                        <div className="min-w-0 flex-1">
+                          <p className="text-base font-semibold text-zinc-900">{item.clientName}</p>
+                          <p className="text-xs text-zinc-500">{item.professionalName}</p>
+                        </div>
+                        {wa && (
+                          <a
+                            href={wa}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-2 text-[11px] font-medium text-emerald-700 transition hover:bg-emerald-100"
+                            aria-label={`Abrir WhatsApp de ${item.clientName}`}
+                          >
+                            WhatsApp
+                          </a>
+                        )}
                       </div>
-                      {wa && (
-                        <a
-                          href={wa}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="rounded-lg bg-emerald-600 px-2.5 py-2 text-xs font-medium text-white"
-                          aria-label={`Abrir WhatsApp de ${item.clientName}`}
-                        >
-                          WhatsApp
-                        </a>
-                      )}
-                    </div>
 
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {item.servicos.map((servico) => (
-                        <span key={`${item.id}-${servico}`} className="rounded-full bg-rose-50 px-2 py-1 text-xs font-medium text-rose-700">
-                          {servico}
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        {item.servicos.map((servico) => (
+                          <span key={`${item.id}-${servico}`} className="rounded-lg bg-zinc-100 px-2.5 py-1 text-[11px] font-medium text-zinc-700">
+                            {servico}
+                          </span>
+                        ))}
+                        <span className="rounded-lg bg-zinc-100 px-2.5 py-1 text-[11px] font-medium text-zinc-700">
+                          {minutosParaHHMM(item.endMin - item.startMin)}
                         </span>
-                      ))}
-                      <span className="rounded-full bg-neutral-200 px-2 py-1 text-xs font-medium text-neutral-700">
-                        {item.professionalName}
-                      </span>
-                    </div>
+                      </div>
 
-                    <div className="mt-3 flex items-center justify-between text-sm text-neutral-600">
-                      <span>Duração: {minutosParaHHMM(item.endMin - item.startMin)}</span>
-                      <span>{brl(item.totalCents)}</span>
-                    </div>
+                      <div className="mt-4 flex items-center justify-between text-sm text-zinc-600">
+                        <span>{brl(item.totalCents)}</span>
+                        <span className="font-medium text-zinc-500">{item.professionalName}</span>
+                      </div>
 
-                    <div className="mt-4 flex gap-2">
-                      <button
-                        type="button"
-                        className={btnPrimary + " flex-1 text-xs"}
-                        onClick={() => atualizarStatus(item.id, "COMPLETED")}
-                      >
-                        Concluído
-                      </button>
-                      <button
-                        type="button"
-                        className={btnGhost + " flex-1 text-xs"}
-                        onClick={() => atualizarStatus(item.id, "CANCELLED")}
-                      >
-                        Cancelar
-                      </button>
-                    </div>
-                  </article>
-                );
-              })
+                      <div className="mt-4 flex gap-2">
+                        <button
+                          type="button"
+                          className="flex-1 rounded-xl bg-zinc-900 px-3 py-2.5 text-sm font-medium text-white shadow-sm transition-all duration-150 active:scale-[0.98]"
+                          onClick={() => atualizarStatus(item.id, "COMPLETED")}
+                        >
+                          Concluir
+                        </button>
+                        <button
+                          type="button"
+                          className="flex-1 rounded-xl border border-zinc-200 bg-white px-3 py-2.5 text-sm font-medium text-zinc-700 transition-all duration-150 active:scale-[0.98]"
+                          onClick={() => atualizarStatus(item.id, "CANCELLED")}
+                        >
+                          Cancelar
+                        </button>
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
             )}
           </div>
         </section>

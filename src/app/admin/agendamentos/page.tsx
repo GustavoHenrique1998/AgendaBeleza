@@ -110,59 +110,81 @@ export default function AgendamentosPage() {
       {erro && <Alerta>{erro}</Alerta>}
       {!lista && !erro && <p className="text-neutral-500">Carregando…</p>}
       {lista && lista.length === 0 && (
-        <p className="rounded-xl bg-white p-6 text-center text-neutral-500">Nenhum agendamento neste período.</p>
+        <div className="flex min-h-[220px] flex-col items-center justify-center rounded-2xl border border-dashed border-zinc-200 bg-zinc-50/60 p-6 text-center">
+          <p className="text-lg font-medium text-zinc-700">Nenhum agendamento neste período.</p>
+          <p className="mt-1 text-sm text-zinc-500">Ajuste os filtros para visualizar outros resultados.</p>
+        </div>
       )}
 
-      <ul className="space-y-2 pb-36">
+      <ul className="space-y-3 pb-36">
         {lista?.map((a) => (
-          <li key={a.id} className="rounded-xl border bg-white p-3">
-            <div className="flex flex-wrap items-start justify-between gap-2">
+          <li key={a.id} className="rounded-2xl border border-zinc-200/80 bg-white p-4 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="font-semibold">
-                  {dataBR(a.date)} · {a.time}–{a.endTime}
-                </p>
-                <p className="font-medium">{a.clientName}{a.clientPhone && <span className="font-normal text-neutral-500"> · {a.clientPhone}</span>}</p>
-                <p className="text-sm text-neutral-500">
-                  {a.servicos.join(", ")} · {a.professionalName} · {brl(a.totalCents)}
-                  {a.source === "ADMIN" && " · lançado pelo salão"}
-                </p>
-                {a.notes && <p className="mt-1 text-sm italic text-neutral-500">“{a.notes}”</p>}
+                <p className="text-lg font-bold text-zinc-900">{a.time}–{a.endTime}</p>
+                <p className="text-[11px] uppercase tracking-[0.16em] text-zinc-400">{dataBR(a.date)}</p>
               </div>
-              <div className="flex items-center gap-2">
-                {(() => {
-                  const wa = buildWhatsappLink({
-                    clientName: a.clientName,
-                    phone: a.clientPhone,
-                    date: a.date,
-                    time: a.time,
-                    services: a.servicos,
-                    professionalName: a.professionalName,
-                    totalCents: a.totalCents,
-                  });
-                  return wa ? (
-                    <a
-                      href={wa}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100"
-                      aria-label={`Abrir WhatsApp de ${a.clientName}`}
-                    >
-                      WhatsApp
-                    </a>
-                  ) : null;
-                })()}
-                <StatusBadge status={a.status} />
-                <select
-                  aria-label="Alterar status"
-                  value={a.status}
-                  onChange={(e) => mudarStatus(a.id, e.target.value as Status)}
-                  className="rounded-lg border border-neutral-300 bg-white px-2 py-1.5 text-sm"
-                >
-                  {(Object.keys(STATUS_INFO) as Status[]).map((s) => (
-                    <option key={s} value={s}>{STATUS_INFO[s].label}</option>
-                  ))}
-                </select>
+              <StatusBadge status={a.status} />
+            </div>
+
+            <div className="mt-3 flex items-center justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <p className="text-base font-semibold text-zinc-900">{a.clientName}</p>
+                {a.clientPhone && <p className="text-xs text-zinc-500">{a.clientPhone}</p>}
               </div>
+              {(() => {
+                const wa = buildWhatsappLink({
+                  clientName: a.clientName,
+                  phone: a.clientPhone,
+                  date: a.date,
+                  time: a.time,
+                  services: a.servicos,
+                  professionalName: a.professionalName,
+                  totalCents: a.totalCents,
+                });
+                return wa ? (
+                  <a
+                    href={wa}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-2.5 py-2 text-[11px] font-medium text-emerald-700 transition hover:bg-emerald-100"
+                    aria-label={`Abrir WhatsApp de ${a.clientName}`}
+                  >
+                    WhatsApp
+                  </a>
+                ) : null;
+              })()}
+            </div>
+
+            <div className="mt-3 flex flex-wrap gap-2">
+              {a.servicos.map((servico) => (
+                <span key={`${a.id}-${servico}`} className="rounded-lg bg-zinc-100 px-2.5 py-1 text-[11px] font-medium text-zinc-700">
+                  {servico}
+                </span>
+              ))}
+              <span className="rounded-lg bg-zinc-100 px-2.5 py-1 text-[11px] font-medium text-zinc-700">
+                {a.professionalName}
+              </span>
+            </div>
+
+            <div className="mt-3 flex items-center justify-between text-sm text-zinc-600">
+              <span>{brl(a.totalCents)}</span>
+              <span>{a.servicos.length} serviço(s)</span>
+            </div>
+
+            {a.notes && <p className="mt-3 text-sm italic text-zinc-500">“{a.notes}”</p>}
+
+            <div className="mt-4 flex gap-2">
+              <select
+                aria-label="Alterar status"
+                value={a.status}
+                onChange={(e) => mudarStatus(a.id, e.target.value as Status)}
+                className="flex-1 rounded-xl border border-zinc-200 bg-white px-2.5 py-2 text-sm text-zinc-700"
+              >
+                {(Object.keys(STATUS_INFO) as Status[]).map((s) => (
+                  <option key={s} value={s}>{STATUS_INFO[s].label}</option>
+                ))}
+              </select>
             </div>
           </li>
         ))}
